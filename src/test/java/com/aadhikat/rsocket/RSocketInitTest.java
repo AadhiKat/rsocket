@@ -1,7 +1,9 @@
 package com.aadhikat.rsocket;
 
 import com.aadhikat.rsocket.dto.RequestDto;
+import com.aadhikat.rsocket.dto.ResponseDto;
 import com.aadhikat.rsocket.util.ObjectUtil;
+import io.rsocket.Payload;
 import io.rsocket.RSocket;
 import io.rsocket.core.RSocketConnector;
 import io.rsocket.transport.netty.client.TcpClientTransport;
@@ -22,5 +24,11 @@ public class RSocketInitTest {
     public void fireAndForget() {
         Mono<Void> mono = this.rSocket.fireAndForget(ObjectUtil.toPayload(new RequestDto(5)));
         StepVerifier.create(mono).verifyComplete();
+    }
+
+    @Test
+    public void requestResponse() {
+        Mono<ResponseDto> mono = this.rSocket.requestResponse(ObjectUtil.toPayload(new RequestDto(5))).map(p -> ObjectUtil.toObject(p, ResponseDto.class)).doOnNext(System.out::println);
+        StepVerifier.create(mono).expectNextCount(1).verifyComplete();
     }
 }

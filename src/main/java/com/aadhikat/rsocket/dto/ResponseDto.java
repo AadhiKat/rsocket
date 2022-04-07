@@ -28,4 +28,12 @@ public class ResponseDto {
     public void setOutput(int output) {
         this.output = output;
     }
+
+    @Override
+    public String toString() {
+        return "ResponseDto{" +
+                "input=" + input +
+                ", output=" + output +
+                '}';
+    }
 }
