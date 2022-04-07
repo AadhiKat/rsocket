@@ -10,6 +10,7 @@ import io.rsocket.transport.netty.client.TcpClientTransport;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -30,5 +31,16 @@ public class RSocketInitTest {
     public void requestResponse() {
         Mono<ResponseDto> mono = this.rSocket.requestResponse(ObjectUtil.toPayload(new RequestDto(5))).map(p -> ObjectUtil.toObject(p, ResponseDto.class)).doOnNext(System.out::println);
         StepVerifier.create(mono).expectNextCount(1).verifyComplete();
+    }
+
+    @Test
+    public void requestStream() {
+        Flux<ResponseDto> flux =
+                this.rSocket
+                        .requestStream(ObjectUtil.toPayload(new RequestDto(5)))
+                        .map(p -> ObjectUtil.toObject(p, ResponseDto.class))
+                        .doOnNext(System.out::println)
+                        .take(4);
+        StepVerifier.create(flux).expectNextCount(4).verifyComplete();
     }
 }

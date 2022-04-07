@@ -5,7 +5,10 @@ import com.aadhikat.rsocket.dto.ResponseDto;
 import com.aadhikat.rsocket.util.ObjectUtil;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
 
 public class MathService implements RSocket {
 
@@ -28,5 +31,17 @@ public class MathService implements RSocket {
             ResponseDto responseDto = new ResponseDto(requestDto.getInput() , (requestDto.getInput() * requestDto.getInput()));
             return ObjectUtil.toPayload(responseDto);
         });
+    }
+
+    @Override
+    public Flux<Payload> requestStream(Payload payload) {
+        RequestDto requestDto = ObjectUtil.toObject(payload, RequestDto.class);
+        return Flux.range(1, 10)
+                .map(i -> i * requestDto.getInput())
+                .map(i -> new ResponseDto(requestDto.getInput(), i))
+                .delayElements(Duration.ofSeconds(1)) // Assuming it is a time consuming process
+                .doOnNext(System.out :: println)
+                .doFinally(s -> System.out.println(s)) // Used for printing the cancel request
+                .map(ObjectUtil::toPayload);
     }
 }
