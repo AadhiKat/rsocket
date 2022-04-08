@@ -1,10 +1,13 @@
 package com.aadhikat.rsocket.service;
 
+import com.aadhikat.rsocket.dto.ChartResponseDto;
 import com.aadhikat.rsocket.dto.RequestDto;
 import com.aadhikat.rsocket.dto.ResponseDto;
 import com.aadhikat.rsocket.util.ObjectUtil;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
+import javafx.scene.chart.Chart;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -31,6 +34,15 @@ public class MathService implements RSocket {
             ResponseDto responseDto = new ResponseDto(requestDto.getInput() , (requestDto.getInput() * requestDto.getInput()));
             return ObjectUtil.toPayload(responseDto);
         });
+    }
+
+    @Override
+    public Flux<Payload> requestChannel(Publisher<Payload> payloads) {
+        return Flux.from(payloads)
+                .map(p -> ObjectUtil.toObject(p , RequestDto.class))
+                .map(RequestDto::getInput)
+                .map(i -> new ChartResponseDto(i , (i * i ) + 1))
+                .map(ObjectUtil::toPayload);
     }
 
     @Override
