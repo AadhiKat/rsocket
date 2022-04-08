@@ -10,6 +10,7 @@ public class SocketAcceptorImpl implements SocketAcceptor {
     public Mono<RSocket> accept(ConnectionSetupPayload connectionSetupPayload, RSocket rSocket) {
         System.out.println("SocketAcceptorImpl - accept method");
 //        return Mono.fromCallable(MathService::new);
-        return Mono.fromCallable(() -> new BatchJobService(rSocket));
+//        return Mono.fromCallable(() -> new BatchJobService(rSocket));
+        return Mono.fromCallable(FastProducerService::new);
     }
 }
